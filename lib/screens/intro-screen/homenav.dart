@@ -7,6 +7,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:ssda/screens/home-screen/SearchScreen.dart';
 import 'package:ssda/screens/home-screen/startpage.dart';
+import 'package:ssda/screens/home_screen.dart';
 import '../../utils/constent.dart';
 import '../../utils/contactutil.dart';
 
@@ -28,6 +29,7 @@ class _HomeNavState extends State<HomeNav> {
   List widgets = <Widget>[
     FirstPage(),
     SearchScreen(),
+    HomeScreen(),
     Text('name'),
   ];
 
