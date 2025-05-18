@@ -40,10 +40,11 @@ class MyApp extends StatelessWidget {
           statusBarIconBrightness: Brightness.dark,
         )
     );
-    return GetMaterialApp(
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: SplaseScreen(),
       theme: AppTheme.appTHeme,
+      onGenerateRoute: AppRouter.generateRoute,
+      initialRoute: '/',
     );
   }
 }

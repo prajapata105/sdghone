@@ -6,6 +6,7 @@ import 'package:ssda/screens/cart_gift_screen.dart';
 import 'package:ssda/screens/coupons_screeen.dart';
 import 'package:ssda/screens/error_screen.dart';
 import 'package:ssda/screens/home_screen.dart';
+import 'package:ssda/screens/intro-screen/splasescreen.dart';
 import 'package:ssda/screens/order_confirmation_screen.dart';
 import 'package:ssda/screens/order_summary_screen.dart';
 import 'package:ssda/screens/pdf_view_screen.dart';
@@ -19,7 +20,7 @@ import 'package:ssda/screens/user_orders_screen.dart';
 class AppRouter {
   static Route<dynamic>? generateRoute(RouteSettings settings) {
     switch (settings.name) {
-      case '/':
+      case '/ss':
         return ScalePageRoute(
           builder: (_) => const LoginScreen(),
         );
@@ -33,6 +34,10 @@ class AppRouter {
       case '/home':
         return ScalePageRoute(
           builder: (_) => const HomeScreen(),
+        );
+      case '/':
+        return ScalePageRoute(
+          builder: (_) => const SplaseScreen(),
         );
       case '/products':
         return ScalePageRoute(
@@ -89,6 +94,7 @@ class AppRouter {
           builder: (_) => const AppAboutScreen(),
           animationDirection: AnimationDirection.rightToLeft,
         );
+
       default:
         return MaterialPageRoute(
           builder: (_) => const ErrorScreem(),

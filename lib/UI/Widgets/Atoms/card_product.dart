@@ -1,21 +1,18 @@
 import 'package:flutter/material.dart';
-
+import 'package:ssda/models/product_model.dart';
 import 'add_to_cart_button.dart';
 import '../Organisms/product_description_modal_opener.dart';
 
-const productDetails =
-    '''Amul Taaza Toned Milk (Polypack) is pasteurized with a great nutritional value. It can be consumed directly or can be used for preparing tea, coffee, sweets, khoya, curd, buttermilk, ghee etc.''';
-
 class ProductCard extends StatelessWidget {
-  const ProductCard({super.key, required this.index});
+  final Product product;
 
-  final int index;
+  const ProductCard({super.key, required this.product});
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        openProductDescription(context, index);
+        openProductDescription(context, product); // ✅ Make sure this method exists
       },
       child: Container(
         decoration: BoxDecoration(
@@ -25,34 +22,29 @@ class ProductCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Image.asset("Assets/Products/${index + 1}.png"),
+            product.image.isNotEmpty
+                ? Image.network(product.image, height: 120)
+                : const Placeholder(fallbackHeight: 120),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    "Amul Milk",
+                  Text(
+                    product.name,
                     maxLines: 1,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 15,
                     ),
                   ),
-                  Text(
-                    "300gms",
-                    maxLines: 1,
-                    style: Theme.of(context).textTheme.displaySmall,
-                  ),
+                  const Text("1 item"),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        "₹ 100",
-                        maxLines: 1,
-                        style: TextStyle(
-                          fontSize: 14,
-                        ),
+                      Text(
+                        "₹ ${product.price.toStringAsFixed(2)}",
+                        style: const TextStyle(fontSize: 14),
                       ),
                       buildAddToCartButton()
                     ],

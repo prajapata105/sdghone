@@ -49,9 +49,9 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
               HomeScreenCateogoryWidget(),
-              CatgorywithProducts(),
+              CatgorywithProducts(products: [],),
               CatgorywithProducts(
-                title: "Personal Care",
+                title: "Personal Care", products: [],
               ),
               SliverToBoxAdapter(
                 child: SizedBox(

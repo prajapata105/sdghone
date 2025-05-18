@@ -1,63 +1,83 @@
 import 'package:flutter/material.dart';
-import 'package:ssda/constants.dart';
+import '../../models/product_model.dart';
+import 'Widgets/Atoms/add_to_cart_button.dart';
 
-
-
-class ProductsSearchDelegate extends SearchDelegate {
-  @override
-  List<Widget> buildActions(BuildContext context) {
-    return [
-      IconButton(
-        icon: const Icon(Icons.clear),
-        onPressed: () => (query == "") ? close(context, null) : query = "",
-      ),
-    ];
-  }
-
-  @override
-  Widget buildLeading(BuildContext context) {
-    return IconButton(
-      icon: const Icon(Icons.arrow_back),
-      onPressed: () => close(context, null),
-    );
-  }
-
-  @override
-  Widget buildResults(BuildContext context) {
-    // Perform search and display resultsdas
-
-    final filteredProducts = kDummyProducts
-        .where((element) => element.toLowerCase().contains(query.toLowerCase()))
-        .toList();
-
-    return ListView.builder(
-      itemCount: filteredProducts.length,
-      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-      itemBuilder: (context, index) {
-        return ListTile(
-          title: Text(filteredProducts[index]),
-          onTap: () {
-            query = filteredProducts[index];
-            showResults(context);
-          },
-        );
-      },
-    );
-  }
-
-  @override
-  Widget buildSuggestions(BuildContext context) {
-    return ListView.builder(
-      itemCount: kDummyProducts.length,
-      itemBuilder: (context, index) {
-        return ListTile(
-          title: Text(kDummyProducts[index]),
-          onTap: () {
-            query = kDummyProducts[index];
-            showResults(context);
-          },
-        );
-      },
-    );
-  }
+Future<dynamic> openProductDescription(BuildContext context, Product product) {
+  return showModalBottomSheet(
+    context: context,
+    backgroundColor: Colors.transparent,
+    enableDrag: true,
+    builder: (context1) {
+      return Container(
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+        child: ListView(
+          physics: const BouncingScrollPhysics(),
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.max,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Center(
+                      child: product.image.isNotEmpty
+                          ? Image.network(product.image, height: 200)
+                          : const Placeholder(fallbackHeight: 200),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      product.name,
+                      maxLines: 2,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    ),
+                    const SizedBox(height: 5),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "₹ ${product.price.toStringAsFixed(2)}",
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.black54,
+                          ),
+                        ),
+                        buildAddToCartButton()
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    const Text(
+                      'Product Details',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    ),
+                    Text(
+                      product.description.isNotEmpty
+                          ? product.description
+                          : 'No description available',
+                      style: const TextStyle(fontSize: 14),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    },
+  );
 }

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 
+import '../../../models/product_model.dart';
 import '../Atoms/add_to_cart_button.dart';
-import '../Atoms/card_product.dart';
 
-Future<dynamic> openProductDescription(BuildContext context, int index) {
+
+Future<dynamic> openProductDescription(BuildContext context, Product product) {
   return showModalBottomSheet(
     context: context,
     backgroundColor: Colors.transparent,
@@ -31,46 +32,47 @@ Future<dynamic> openProductDescription(BuildContext context, int index) {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Center(
-                        child: Image.asset("Assets/Products/${index + 1}.png")),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      child: product.image.isNotEmpty
+                          ? Image.network(product.image, height: 200)
+                          : const Placeholder(fallbackHeight: 200),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      product.name,
+                      maxLines: 2,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    ),
+                    const SizedBox(height: 5),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
-                          "Amul Milk",
-                          maxLines: 1,
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 15,
+                        Text(
+                          "₹ ${product.price.toStringAsFixed(2)}",
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.black54,
                           ),
                         ),
-                        Text(
-                          "300gms",
-                          maxLines: 1,
-                          style: Theme.of(context).textTheme.displaySmall,
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              "₹ 100",
-                              maxLines: 1,
-                              style: TextStyle(
-                                fontSize: 14,
-                              ),
-                            ),
-                            buildAddToCartButton()
-                          ],
-                        )
+                        buildAddToCartButton()
                       ],
                     ),
+                    const SizedBox(height: 10),
                     const Text(
-                      'Products Details',
+                      'Product Details',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 18,
                       ),
                     ),
-                    const Text(productDetails),
+                    Text(
+                      product.description.isNotEmpty
+                          ? product.description
+                          : 'No description available',
+                      style: const TextStyle(fontSize: 14),
+                    ),
                   ],
                 ),
               ),
