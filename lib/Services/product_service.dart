@@ -19,4 +19,17 @@ class ProductService {
 
     return (response as List).map((e) => Product.fromJson(e)).toList();
   }
+
+  Future<List<Product>> getAllProductsByCategory(int categoryId) async {
+    final fullUrl =
+        "$baseUrl/wp-json/wc/v3/products?consumer_key=$consumerKey&consumer_secret=$consumerSecret&category=$categoryId";
+
+    final response = await ApiService.requestMethods(
+      methodType: "GET",
+      url: fullUrl,
+    );
+
+    return (response as List).map((e) => Product.fromJson(e)).toList();
+  }
+
 }

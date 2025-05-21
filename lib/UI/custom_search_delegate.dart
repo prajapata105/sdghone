@@ -54,7 +54,13 @@ Future<dynamic> openProductDescription(BuildContext context, Product product) {
                             color: Colors.black54,
                           ),
                         ),
-                        buildAddToCartButton()
+
+                        Builder(
+                          builder: (context) {
+                            return buildAddToCartButton(product);
+                          },
+                        )
+
                       ],
                     ),
                     const SizedBox(height: 10),

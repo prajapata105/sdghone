@@ -18,4 +18,30 @@ class CategoryService {
 
     return (response as List).map((e) => Category.fromJson(e)).toList();
   }
+
+  Future<List<Category>> getMainCategories() async {
+    final url =
+        "$baseUrl/wp-json/wc/v3/products/categories?parent=0&consumer_key=$consumerKey&consumer_secret=$consumerSecret";
+
+    final response = await ApiService.requestMethods(
+      methodType: "GET",
+      url: url,
+    );
+
+    return (response as List).map((e) => Category.fromJson(e)).toList();
+  }
+
+
+  Future<List<Category>> getSubCategories(int parentId) async {
+    final url =
+        "$baseUrl/wp-json/wc/v3/products/categories?parent=$parentId&consumer_key=$consumerKey&consumer_secret=$consumerSecret";
+
+    final response = await ApiService.requestMethods(
+      methodType: "GET",
+      url: url,
+    );
+
+    return (response as List).map((e) => Category.fromJson(e)).toList();
+  }
+
 }

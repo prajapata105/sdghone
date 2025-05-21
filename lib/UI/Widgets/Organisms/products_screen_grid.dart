@@ -16,18 +16,18 @@ class ProductsGrid extends StatelessWidget {
         SliverGrid(
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
-            mainAxisSpacing: 8.0,
-            crossAxisSpacing: 8.0,
+            mainAxisSpacing: 8,
+            crossAxisSpacing: 8,
             childAspectRatio: 0.62,
           ),
           delegate: SliverChildBuilderDelegate(
                 (BuildContext context, int index) {
-              final product = products[index];
-              return ProductCard(product: product); // ✅ proper object
+              if (index == products.length) return const SizedBox(height: 50);
+              return ProductCard(product: products[index]);
             },
-            childCount: products.length,
+            childCount: products.length + 1,
           ),
-        )
+        ),
       ],
     );
   }

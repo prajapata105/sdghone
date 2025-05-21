@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ssda/models/category_model.dart';
 import 'package:ssda/services/category_service.dart';
-import '../Atoms/category_widget.dart';
+import 'package:ssda/screens/products_screen.dart';
 
 class HomeScreenCateogoryWidget extends StatefulWidget {
   const HomeScreenCateogoryWidget({super.key});
@@ -16,7 +16,7 @@ class _HomeScreenCateogoryWidgetState extends State<HomeScreenCateogoryWidget> {
   @override
   void initState() {
     super.initState();
-    _categoriesFuture = CategoryService().getAllCategories();
+    _categoriesFuture = CategoryService().getMainCategories();
   }
 
   @override
@@ -43,7 +43,35 @@ class _HomeScreenCateogoryWidgetState extends State<HomeScreenCateogoryWidget> {
             ),
             delegate: SliverChildBuilderDelegate(
                   (BuildContext context, int index) {
-                return CategoryWidget(category: categories[index]);
+                final category = categories[index];
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ProductsScreen(
+                          categoryName: category.name,
+                          categoryId: category.id,
+                        ),
+                      ),
+                    );
+                  },
+                  child: Column(
+                    children: [
+                      category.imageUrl != null
+                          ? Image.network(category.imageUrl!, height: 50, width: 50)
+                          : const Icon(Icons.image_not_supported, size: 50),
+                      const SizedBox(height: 5),
+                      Text(
+                        category.name,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(fontSize: 12),
+                      ),
+                    ],
+                  ),
+                );
               },
               childCount: categories.length,
             ),

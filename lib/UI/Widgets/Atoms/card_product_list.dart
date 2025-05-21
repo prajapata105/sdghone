@@ -45,7 +45,13 @@ class ProductCardForList extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 15),
-            buildAddToCartButton()
+
+            Builder(
+              builder: (context) {
+                return buildAddToCartButton(product);
+              },
+            )
+
           ],
         ),
       ),

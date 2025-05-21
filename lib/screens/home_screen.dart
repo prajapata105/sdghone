@@ -60,7 +60,11 @@ class HomeScreen extends StatelessWidget {
               ),
             ],
           ),
-          BottomStickyContainer()
+          Builder(
+            builder: (context) {
+              return const BottomStickyContainer(); // ✅ अब यह context सही है
+            },
+          ),
         ],
       ),
     );

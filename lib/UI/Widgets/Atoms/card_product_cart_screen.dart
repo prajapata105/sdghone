@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
-
-import '../../../app_colors.dart';
+import 'package:provider/provider.dart';
+import 'package:ssda/app_colors.dart';
+import 'package:ssda/models/cart_item_model.dart';
+import 'package:ssda/services/cart_service.dart';
 
 class CartProductCard extends StatelessWidget {
-  const CartProductCard({super.key, required this.index});
+  final CartItem cartItem;
 
-  final int index;
+  const CartProductCard({super.key, required this.cartItem});
 
   @override
   Widget build(BuildContext context) {
+    final cart = context.read<CartService>();
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 0),
       padding: const EdgeInsets.symmetric(vertical: 10),
@@ -16,43 +20,38 @@ class CartProductCard extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
+          // Product image and details
           Row(
             children: [
               Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(2),
-                  border: Border.all(
-                      width: 1,
-                      color: const Color.fromARGB(255, 223, 222, 222)),
+                  border: Border.all(color: Colors.grey.shade300),
                 ),
-                child: Image.asset(
-                  "Assets/Products/${index + 1}.png",
-                  height: 70,
-                ),
+                child: Image.network(cartItem.product.image, height: 70),
               ),
-              const SizedBox(
-                width: 10,
-              ),
-              const Column(
+              const SizedBox(width: 10),
+              Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Amul Milk Toned',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                    cartItem.product.name,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  Text('300gms'),
+                  const Text('300gms'),
                   Text(
-                    '₹ 100',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                    '₹ ${cartItem.product.price.toStringAsFixed(2)}',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ],
               )
             ],
           ),
+
+          // Quantity controls
           Container(
             height: 30,
             width: 105,
-            padding: const EdgeInsets.symmetric(horizontal: 0),
             decoration: BoxDecoration(
               color: AppColors.primaryGreenColor,
               borderRadius: BorderRadius.circular(8.0),
@@ -60,27 +59,16 @@ class CartProductCard extends StatelessWidget {
             child: Row(
               children: [
                 IconButton(
-                  onPressed: () {},
+                  onPressed: () => cart.decreaseQuantity(cartItem.product),
                   padding: EdgeInsets.zero,
-                  icon: const Icon(
-                    Icons.remove,
-                    color: Colors.white,
-                    size: 10,
-                  ),
+                  icon: const Icon(Icons.remove, color: Colors.white, size: 16),
                 ),
-                const Text(
-                  "1",
-                  style: TextStyle(color: Colors.white),
-                ),
+                Text("${cartItem.quantity}", style: const TextStyle(color: Colors.white)),
                 IconButton(
-                  onPressed: () {},
+                  onPressed: () => cart.increaseQuantity(cartItem.product),
                   padding: EdgeInsets.zero,
-                  icon: const Icon(
-                    Icons.add,
-                    color: Colors.white,
-                    size: 10,
-                  ),
-                )
+                  icon: const Icon(Icons.add, color: Colors.white, size: 16),
+                ),
               ],
             ),
           )
@@ -89,3 +77,4 @@ class CartProductCard extends StatelessWidget {
     );
   }
 }
+
