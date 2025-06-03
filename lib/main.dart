@@ -2,16 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:get/get.dart';
-import 'package:provider/provider.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:ssda/app_theme.dart';
 import 'package:ssda/route_generator.dart';
 import 'package:ssda/services/cart_service.dart';
+import 'package:ssda/controller/AddressController.dart';
 
 void main() async {
-  // WidgetsFlutterBinding.ensureInitialized();
-  // await Firebase.initializeApp();
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  await GetStorage.init();
 
-  runApp(MyApp());
+  Get.put(CartService(), permanent: true);
+  Get.put(AddressController(), permanent: true);
+
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -25,21 +30,11 @@ class MyApp extends StatelessWidget {
         statusBarIconBrightness: Brightness.dark,
       ),
     );
-
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => CartService()),
-      ],
-      child: Builder(
-        builder: (context) {
-          return GetMaterialApp(
-            debugShowCheckedModeBanner: false,
-            theme: AppTheme.appTHeme,
-            initialRoute: '/home',
-            onGenerateRoute: AppRouter.generateRoute,
-          );
-        },
-      ),
+    return GetMaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.appTHeme,
+      initialRoute: '/home',
+      onGenerateRoute: AppRouter.generateRoute,
     );
   }
 }

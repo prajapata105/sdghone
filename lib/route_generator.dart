@@ -91,9 +91,10 @@ class AppRouter {
         return ScalePageRoute(
           builder: (_) => const ProfileScreen(),
         );
+
       case '/user/address':
         return ScalePageRoute(
-          builder: (_) => const UserAddressScreen(),
+          builder: (_) =>  UserAddressScreen(),
           animationDirection: AnimationDirection.rightToLeft,
         );
       case '/app/about':

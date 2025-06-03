@@ -22,7 +22,9 @@ class ApiService {
       Response response;
       switch (methodType) {
         case "GET":
-          response = await _dio.get(url);
+          response = await _dio.get(url, options: Options(
+            headers: {"Cache-Control": "no-cache"},
+          ));
           break;
         case "POST":
           response = await _dio.post(url, data: body);

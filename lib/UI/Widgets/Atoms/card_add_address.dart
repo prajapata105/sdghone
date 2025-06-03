@@ -1,30 +1,31 @@
 import 'package:flutter/material.dart';
 
-import '../../../app_colors.dart';
-
 class AddNewAddressCard extends StatelessWidget {
-  const AddNewAddressCard({
-    super.key,
-  });
+  final VoidCallback onTap;
+  const AddNewAddressCard({super.key, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
-      margin: const EdgeInsets.symmetric(vertical: 10),
-      decoration: BoxDecoration(
-          color: Colors.white, borderRadius: BorderRadius.circular(10.0)),
-      child: const Row(
-        children: [
-          Icon(
-            Icons.add,
-            color: AppColors.primaryGreenColor,
+    return Card(
+      elevation: 1,
+      color: Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(8),
+        child: SizedBox(
+          height: 70,
+          child: Center(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: const [
+                Icon(Icons.add_location_alt, color: Colors.green, size: 24),
+                SizedBox(width: 8),
+                Text("Add New Address", style: TextStyle(fontWeight: FontWeight.bold)),
+              ],
+            ),
           ),
-          Text(
-            'Add new address',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          )
-        ],
+        ),
       ),
     );
   }

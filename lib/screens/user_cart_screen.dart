@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:ssda/Services/cart_service.dart';
+import 'package:get/get.dart';
+import 'package:ssda/services/cart_service.dart';
 import 'package:ssda/UI/Widgets/Organisms/cart_screen_address_container.dart';
 import 'package:ssda/UI/Widgets/Organisms/cart_screen_payment_container.dart';
 import 'package:ssda/UI/Widgets/Organisms/card_cart_prices_detail.dart';
@@ -16,10 +16,9 @@ class CartScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cart = Get.find<CartService>();
 
-    final cart = context.watch<CartService>();
-    print("cartItems length = ${context.watch<CartService>().cartItems.length}"); // ⬅️ देख लो context मिल रहा या नहीं
-    return Scaffold(
+    return Obx(() => Scaffold(
       backgroundColor: AppColors.greyWhiteColor,
       appBar: AppBar(
         leadingWidth: 25,
@@ -37,7 +36,21 @@ class CartScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 5),
                 color: Colors.white,
-                child: ListView.builder(
+                child: cart.cartItems.isEmpty
+                    ? const Padding(
+                  padding: EdgeInsets.all(30),
+                  child: Center(
+                    child: Text(
+                      "Your cart is empty!",
+                      style: TextStyle(
+                        color: Colors.grey,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                )
+                    : ListView.builder(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   itemCount: cart.cartItems.length,
@@ -57,9 +70,13 @@ class CartScreen extends StatelessWidget {
             ],
           ),
 
+          // ✅ Address & Payment Section
           const Positioned(
             bottom: 0,
+            left: 0,
+            right: 0,
             child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
                 CartScreenAddressContainer(),
                 CartScreenPaymentContainer(),
@@ -68,6 +85,6 @@ class CartScreen extends StatelessWidget {
           ),
         ],
       ),
-    );
+    ));
   }
 }

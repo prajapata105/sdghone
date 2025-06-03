@@ -31,13 +31,13 @@ class CartTimeandTotalItemCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Delivery in 28 minutes',
+                'Today Delivery',
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              Text('7 Items')
+              Text('')
             ],
           ),
         ],

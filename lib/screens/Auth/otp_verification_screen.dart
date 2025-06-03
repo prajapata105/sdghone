@@ -1,13 +1,14 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ssda/UI/Widgets/Atoms/custom_text_field.dart';
 import 'package:ssda/app_colors.dart' show AppColors;
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:ssda/Services/Providers/custom_auth_provider.dart' as myAuth;
 
 class OTPVerificationScreen extends StatefulWidget {
   const OTPVerificationScreen({super.key, this.data});
-
   final dynamic data;
 
   @override
@@ -26,18 +27,33 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
     _startTimer();
   }
 
-  Future _verifyOTP(context, value) async {
-    return Navigator.of(context).pushNamedAndRemoveUntil(
-      '/home',
-      (route) => false,
-    );
+  Future<void> _verifyOTP(BuildContext context, String value) async {
+    try {
+      String verificationId = widget.data['verificationId'];
+      String smsCode = value;
+      PhoneAuthCredential credential = PhoneAuthProvider.credential(
+        verificationId: verificationId,
+        smsCode: smsCode,
+      );
+      // Firebase Auth sign in
+      UserCredential cred = await FirebaseAuth.instance.signInWithCredential(credential);
+
+      // अब alias के साथ:
+      await myAuth.AuthProvider().onOtpVerified(cred);
+
+      Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("OTP Verification Failed: ${e.toString()}")),
+      );
+    }
   }
 
   void _startTimer() {
     const oneSec = Duration(seconds: 1);
     _timer = Timer.periodic(
       oneSec,
-      (Timer timer) {
+          (Timer timer) {
         if (_secondsRemaining == 1) {
           timer.cancel();
           setState(() {});
@@ -80,10 +96,7 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
         title: const Text('OTP verification'),
       ),
       body: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 20,
-          vertical: 16,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         child: Center(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -95,47 +108,38 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(
-                height: 10,
-              ),
+              const SizedBox(height: 10),
               const Text("Enter the code below to verify your account"),
-              const SizedBox(
-                height: 10,
-              ),
+              const SizedBox(height: 10),
               customTextField(
                 hintText: "Please enter OTP",
                 isPhoneNumberField: true,
                 maxLength: 6,
                 textEditingController: _otpController,
                 onFieldSubmitted: (value) {
-                  _verifyOTP(context, value);
+                  _verifyOTP(context, value!);
                   return null;
                 },
               ),
-              const SizedBox(
-                height: 10,
-              ),
+              const SizedBox(height: 10),
               _timer.isActive
                   ? Text(
-                      'Resend OTP in $_secondsRemaining',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    )
-                  : Container(),
-              _timer.isActive == false
-                  ? TextButton(
-                      onPressed: _restartTimer,
-                      child: const Text(
-                        "Resend OTP",
-                        style: TextStyle(
-                          color: AppColors.primaryGreenColor,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                        ),
-                      ),
-                    )
-                  : Container()
+                'Resend OTP in $_secondsRemaining',
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                ),
+              )
+                  : TextButton(
+                onPressed: _restartTimer,
+                child: const Text(
+                  "Resend OTP",
+                  style: TextStyle(
+                    color: AppColors.primaryGreenColor,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
+                ),
+              )
             ],
           ),
         ),
