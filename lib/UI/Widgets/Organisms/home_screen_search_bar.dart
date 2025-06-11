@@ -1,55 +1,42 @@
+// lib/UI/Widgets/Organisms/home_screen_search_bar.dart
 import 'package:flutter/material.dart';
-
-import '../../../app_colors.dart';
-import '../../custom_sliver_delegate.dart';
+import 'package:ssda/UI/Search/ProductSearchDelegate.dart'; // <<<--- नया सर्च डेलीगेट इम्पोर्ट करें
 
 class HomeScreenSearchBar extends StatelessWidget {
-  const HomeScreenSearchBar({super.key});
+  const HomeScreenSearchBar({
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return SliverPersistentHeader(
-      pinned: true,
-      delegate: SliverAppBarDelegate(
-        minHeight: kToolbarHeight,
-        maxHeight: kToolbarHeight,
-        child: Container(
+    return GestureDetector(
+      onTap: () {
+        // Flutter का बिल्ट-इन सर्च UI दिखाएं
+        showSearch(
+          context: context,
+          delegate: ProductSearchDelegate(),
+        );
+      },
+      child: Container(
+        height: 45,
+        width: MediaQuery.of(context).size.width,
+        decoration: BoxDecoration(
           color: Colors.white,
-          child: _buildSearchField(context),
+          borderRadius: BorderRadius.circular(10.0),
+          border: Border.all(color: Colors.grey.shade200),
         ),
-      ),
-    );
-  }
-
-  Widget _buildSearchField(BuildContext context) {
-    FocusNode focusNode = FocusNode();
-
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.2),
-            spreadRadius: 1,
-            blurRadius: 1,
-            offset: const Offset(0, 1), // changes position of shadow
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          child: Row(
+            children: [
+              Icon(Icons.search, color: Colors.grey[600]),
+              const SizedBox(width: 10),
+              Text(
+                "Search for products...",
+                style: TextStyle(color: Colors.grey[600], fontSize: 16),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: TextField(
-        focusNode: focusNode,
-        decoration: InputDecoration(
-          hintText: 'Search',
-          filled: true,
-          fillColor: AppColors.greyWhiteColor,
-          prefixIcon: Icon(
-            Icons.search,
-            color: Theme.of(context).iconTheme.color,
-          ),
-          border: InputBorder.none,
-          isDense: true,
         ),
       ),
     );

@@ -1,3 +1,5 @@
+// lib/UI/Widgets/Atoms/add_to_cart_button.dart
+
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
@@ -7,16 +9,18 @@ import 'package:ssda/models/cart_item_model.dart';
 import 'package:ssda/services/cart_service.dart';
 
 Widget buildAddToCartButton(Product product) {
-  // आप चाहें तो यह function stateless widget बना सकते हैं
   return InkWell(
     onTap: () {
       final cart = Get.find<CartService>();
-      // CartItem model में product से mapping करें:
+
+      // <<<--- बदलाव यहाँ: कीमत को String से double में सुरक्षित रूप से पार्स करें ---<<<
+      final double priceAsDouble = double.tryParse(product.price) ?? 0.0;
+
       final cartItem = CartItem(
         id: product.id,
         title: product.name,
-        imageUrl: product.image, // या product.images[0] अपने model के हिसाब से
-        price: product.price.toDouble(),
+        imageUrl: product.image,
+        price: priceAsDouble, // पार्स की हुई वैल्यू का उपयोग करें
         quantity: 1,
       );
       cart.addToCart(cartItem);

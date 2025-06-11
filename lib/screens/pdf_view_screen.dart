@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_cached_pdfview/flutter_cached_pdfview.dart';
 
 class ViewOrderInvoiceScreen extends StatelessWidget {
   const ViewOrderInvoiceScreen({super.key});
@@ -16,12 +15,7 @@ class ViewOrderInvoiceScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: const PDF(
-        enableSwipe: true,
-        swipeHorizontal: true,
-        autoSpacing: false,
-        pageFling: false,
-      ).fromAsset('Assets/123446789.pdf'),
+
     );
   }
 }

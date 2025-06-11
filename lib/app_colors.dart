@@ -8,4 +8,5 @@ class AppColors {
   static const Color greyWhiteColor = Color(0xffEDF2F8);
 
   static const Color redAccentColor = Colors.redAccent;
+
 }

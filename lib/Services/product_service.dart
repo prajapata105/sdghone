@@ -1,35 +1,52 @@
+// lib/services/product_service.dart
 import 'package:ssda/Infrastructure/HttpMethods/requesting_methods.dart';
-
-import '../models/product_model.dart';
+import 'package:ssda/Services/WooUserMapper.dart';
+import 'package:ssda/models/product_model.dart';
+import 'package:ssda/Services/Exceptions/api_exception.dart';
 
 class ProductService {
-  final String baseUrl = "https://sridungargarhone.com";
-  final String consumerKey = "ck_d7ef1f4a099e201fefb6b4cf5abe3108b1ead425";
-  final String consumerSecret = "cs_8bcc847ea3e7159f501c242d2c047002ed9d06c5";
+  static const String _baseUrl = WooUserMapper.baseUrl + '/wp-json/wc/v3/';
+  static const String _consumerKey = WooUserMapper.consumerKey;
+  static const String _consumerSecret = WooUserMapper.consumerSecret;
 
-  Future<List<Product>> getAllProducts({String? search}) async {
-    final query = search != null ? "&search=$search" : "";
-    final fullUrl =
-        "$baseUrl/wp-json/wc/v3/products?consumer_key=$consumerKey&consumer_secret=$consumerSecret$query";
-
-    final response = await ApiService.requestMethods(
-      methodType: "GET",
-      url: fullUrl,
-    );
-
-    return (response as List).map((e) => Product.fromJson(e)).toList();
+  static Future<List<Product>> getProducts({
+    int page = 1,
+    int perPage = 20,
+    String? categoryId,
+  }) async {
+    String categoryQuery = '';
+    if (categoryId != null && categoryId.isNotEmpty) {
+      categoryQuery = '&category=$categoryId';
+    }
+    final String url =
+        '${_baseUrl}products?consumer_key=$_consumerKey&consumer_secret=$_consumerSecret&page=$page&per_page=$perPage$categoryQuery&status=publish';
+    try {
+      final response = await ApiService.requestMethods(url: url, methodType: "GET");
+      if (response != null && response is List) {
+        return response.map((data) => Product.fromJson(data)).toList();
+      }
+      return [];
+    } catch (e) {
+      print("ProductService Error (getProducts): $e");
+      return [];
+    }
   }
 
-  Future<List<Product>> getAllProductsByCategory(int categoryId) async {
-    final fullUrl =
-        "$baseUrl/wp-json/wc/v3/products?consumer_key=$consumerKey&consumer_secret=$consumerSecret&category=$categoryId";
-
-    final response = await ApiService.requestMethods(
-      methodType: "GET",
-      url: fullUrl,
-    );
-
-    return (response as List).map((e) => Product.fromJson(e)).toList();
+  static Future<List<Product>> searchProducts(String query) async {
+    if (query.trim().isEmpty) {
+      return [];
+    }
+    final String url =
+        '${_baseUrl}products?search=$query&consumer_key=$_consumerKey&consumer_secret=$_consumerSecret&status=publish';
+    try {
+      final response = await ApiService.requestMethods(url: url, methodType: "GET");
+      if (response != null && response is List) {
+        return response.map((data) => Product.fromJson(data)).toList();
+      }
+      return [];
+    } catch (e) {
+      print("ProductService Error (searchProducts): $e");
+      return [];
+    }
   }
-
 }

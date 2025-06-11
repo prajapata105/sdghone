@@ -29,7 +29,12 @@ class HomeScreen extends StatelessWidget {
             physics: BouncingScrollPhysics(),
             slivers: [
               HomeScreenAppBar(),
-              HomeScreenSearchBar(),
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  child: const HomeScreenSearchBar(),
+                ),
+              ),
               HomeScreenCarousel(),
               SliverToBoxAdapter(
                 child: SizedBox(

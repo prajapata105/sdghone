@@ -56,12 +56,14 @@ dependencies:
   permission_handler: ^12.0.0+1
   flutter_dotenv: ^5.2.1
   fluttertoast: ^8.2.12
+  connectivity_plus: ^6.1.4
   share_plus: ^11.0.0
   geolocator: ^14.0.0
   lottie: ^3.3.1
-  flutter_cached_pdfview: ^0.4.3
   flutter_secure_storage: ^9.2.4
   dio: ^5.8.0+1
+  razorpay_flutter: ^1.4.0
+  shimmer: ^3.0.0
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
@@ -120,13 +122,13 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - Assets/
-    - Assets/imagesvg/
-    - Assets/cimgs/
-    - assets/Categories/
-    - Assets/SubCategories/
-    - Assets/Products/
-    - Assets/Images/
+      - assets/             # <-- छोटा 'a'
+      - assets/imagesvg/
+      - assets/cimgs/
+      - assets/categories/  # <-- छोटा 'a'
+      - assets/subcategories/
+      - assets/products/
+      - assets/images/
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 

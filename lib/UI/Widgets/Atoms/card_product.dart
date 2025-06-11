@@ -1,3 +1,5 @@
+// lib/UI/Widgets/Atoms/card_product.dart
+
 import 'package:flutter/material.dart';
 import 'package:ssda/models/product_model.dart';
 import '../../../app_colors.dart';
@@ -11,44 +13,44 @@ class ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // कीमत को double में पार्स करें
+    final double priceAsDouble = double.tryParse(product.price) ?? 0.0;
+
     return GestureDetector(
       onTap: () => openProductDescription(context, product),
       child: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(10),
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: Colors.grey.shade200, width: 1.0)
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            AspectRatio(
-              aspectRatio: 1,
-              child: product.image.isNotEmpty
-                  ? Image.network(product.image, fit: BoxFit.contain)
-                  : const Placeholder(),
+            Expanded( // इमेज को उपलब्ध जगह लेने दें
+              child: Center(
+                child: product.image.isNotEmpty
+                    ? Image.network(product.image, fit: BoxFit.contain)
+                    : const Placeholder(),
+              ),
             ),
             const SizedBox(height: 5),
             Text(
               product.name,
-              maxLines: 1,
+              maxLines: 2, // 2 लाइन्स
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, height: 1.2),
             ),
-            const Text("1 item", style: TextStyle(fontSize: 12)),
             const SizedBox(height: 4),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text("₹ ${product.price.toStringAsFixed(2)}",
-                    style: const TextStyle(fontSize: 14)),
-
-                Builder(
-                  builder: (context) {
-                    return   buildAddToCartButton(product);// अब context scoped होगा
-                  },
-                )
+                // <<<--- बदलाव यहाँ: toStringAsFixed का उपयोग करें ---<<<
+                Text("₹ ${priceAsDouble.toStringAsFixed(2)}",
+                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                buildAddToCartButton(product),
               ],
             ),
           ],

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:ssda/constants.dart';
 import 'package:ssda/services/cart_service.dart';
 import 'package:ssda/UI/Widgets/Organisms/cart_screen_address_container.dart';
 import 'package:ssda/UI/Widgets/Organisms/cart_screen_payment_container.dart';
@@ -62,7 +63,10 @@ class CartScreen extends StatelessWidget {
               ),
 
               const ApplyCouponOnCartCard(),
-              const CartPriceDetailWidget(),
+              CartPriceDetailWidget(
+                cartServiceInstance: cart, // CartService का इंस्टेंस पास करें
+                currencySymbol: appCurrencySybmbol, // आपके constants.dart से
+              ),
               const OrderGiftCard(),
               const CancellationPolicyCard(),
 
