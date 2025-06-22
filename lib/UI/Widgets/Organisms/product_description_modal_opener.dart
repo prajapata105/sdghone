@@ -1,23 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:html/parser.dart';
 import 'package:ssda/app_colors.dart';
 import 'package:ssda/constants.dart';
 import 'package:ssda/models/cart_item_model.dart';
 import 'package:ssda/models/product_model.dart';
 import 'package:ssda/services/cart_service.dart';
-import 'package:html/parser.dart'; // HTML टैग्स हटाने के लिए
+import 'package:share_plus/share_plus.dart'; // <<<--- शेयर पैकेज
 
 // यह एक हेल्पर फंक्शन है जो बॉटम शीट को खोलता है
 void openProductDescription(BuildContext context, Product product) {
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
-    backgroundColor: Colors.transparent, // शीट को पारदर्शी बनाएं
+    backgroundColor: Colors.transparent,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+    ),
     builder: (context) => DraggableScrollableSheet(
       expand: false,
-      initialChildSize: 0.6, // शुरुआती ऊंचाई 60%
-      maxChildSize: 0.9,     // अधिकतम ऊंचाई 90%
-      minChildSize: 0.4,     // न्यूनतम ऊंचाई 40%
+      initialChildSize: 0.7, // शुरुआती ऊंचाई थोड़ी बढ़ाई गई
+      maxChildSize: 0.9,
+      minChildSize: 0.4,
       builder: (context, scrollController) =>
           ProductDescriptionModal(product: product, scrollController: scrollController),
     ),
@@ -30,11 +34,9 @@ class ProductDescriptionModal extends StatelessWidget {
 
   const ProductDescriptionModal({super.key, required this.product, required this.scrollController});
 
-  // HTML टैग्स को हटाने के लिए एक छोटा फंक्शन
   String _parseHtmlString(String htmlString) {
     final document = parse(htmlString);
-    final String? parsedString = document.body?.text;
-    return parsedString ?? '';
+    return document.body?.text ?? '';
   }
 
   @override
@@ -42,7 +44,6 @@ class ProductDescriptionModal extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Container(
-      // <<<--- बदलाव यहाँ: बेहतर डिज़ाइन के लिए ---<<<
       decoration: const BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -68,7 +69,6 @@ class ProductDescriptionModal extends StatelessWidget {
                 // प्रोडक्ट इमेज
                 SizedBox(
                   height: Get.height * 0.25,
-                  width: double.infinity,
                   child: product.image.isNotEmpty
                       ? Image.network(product.image, fit: BoxFit.contain,
                     errorBuilder: (_, __, ___) => const Icon(Icons.broken_image_outlined, size: 100, color: Colors.grey),
@@ -76,20 +76,43 @@ class ProductDescriptionModal extends StatelessWidget {
                       : const Icon(Icons.image_not_supported_outlined, size: 100, color: Colors.grey),
                 ),
                 const SizedBox(height: 20),
-                // प्रोडक्ट का नाम
-                Text(product.name, style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
+
+                // <<<--- बदलाव यहाँ: टाइटल और शेयर बटन के लिए Row ---<<<
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Text(
+                          product.name,
+                          style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)
+                      ),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.share, color: Colors.grey.shade600),
+                      onPressed: () {
+                        final String productUrl = "https://sridungargarhone.com/?product_id=${product.id}";
+                        Share.share(
+                          'Check out this product on SSDA App: ${product.name}\n\n$productUrl',
+                          subject: product.name,
+                        );
+                      },
+                    ),
+                  ],
+                ),
                 const SizedBox(height: 10),
+
                 // प्रोडक्ट का विवरण
                 if (product.description.isNotEmpty)
                   Text(
-                    _parseHtmlString(product.description), // HTML टैग्स हटाए गए
+                    _parseHtmlString(product.description),
                     style: theme.textTheme.bodyLarge?.copyWith(color: Colors.grey[700], height: 1.5),
                   ),
                 const SizedBox(height: 100), // नीचे के बटन के लिए जगह
               ],
             ),
           ),
-          // <<<--- बदलाव यहाँ: बॉटम बार जो हमेशा दिखेगा ---<<<
+          // बॉटम बार जो हमेशा दिखेगा
           _buildBottomBar(theme),
         ],
       ),
@@ -118,7 +141,6 @@ class ProductDescriptionModal extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // कीमत का सेक्शन
           Flexible(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -131,10 +153,7 @@ class ProductDescriptionModal extends StatelessWidget {
                 if (onSale)
                   Text(
                     "$appCurrencySybmbol${regularPriceAsDouble.toStringAsFixed(2)}",
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      decoration: TextDecoration.lineThrough,
-                      color: Colors.grey,
-                    ),
+                    style: theme.textTheme.titleMedium?.copyWith(decoration: TextDecoration.lineThrough, color: Colors.grey),
                   ),
               ],
             ),
@@ -163,7 +182,7 @@ class ProductDescriptionModal extends StatelessWidget {
 
   // ADD बटन
   Widget _buildAddButton(CartService cartService) {
-    return ElevatedButton.icon(
+    return ElevatedButton(
       onPressed: () {
         final newItem = CartItem(
           id: product.id, title: product.name, imageUrl: product.image,
@@ -177,8 +196,7 @@ class ProductDescriptionModal extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
-      icon: const Icon(Icons.shopping_cart_outlined, size: 20),
-      label: const Text("ADD TO CART", style: TextStyle(fontWeight: FontWeight.bold)),
+      child: const Text("ADD TO CART", style: TextStyle(fontWeight: FontWeight.bold)),
     );
   }
 

@@ -55,14 +55,30 @@ class HomeController extends GetxController {
   }
 
   void _handleDeepLink(Uri deepLink) async {
-    String? articleIdString = deepLink.queryParameters['p'] ?? deepLink.queryParameters['id'];
-    if (articleIdString != null) {
-      final articleId = int.tryParse(articleIdString);
+    print("Foreground Deep Link Received: $deepLink");
+
+    // न्यूज़ लिंक की जांच
+    String? newsIdString = deepLink.queryParameters['p'] ?? deepLink.queryParameters['id'];
+    if (newsIdString != null) {
+      final articleId = int.tryParse(newsIdString);
       if (articleId != null) {
         final NewsArticle? article = await NewsService.getArticleById(articleId);
         if (article != null) {
-          // यहाँ Get.to() का उपयोग करें क्योंकि यूजर पहले से ऐप में है
           Get.to(() => NewsDetailScreen(article: article));
+          return;
+        }
+      }
+    }
+
+    // प्रोडक्ट लिंक की जांच
+    String? productIdString = deepLink.queryParameters['product_id'];
+    if (productIdString != null) {
+      final productId = int.tryParse(productIdString);
+      if (productId != null) {
+        final Product? product = await ProductService.getProductById(productId);
+        if (product != null) {
+          openProductDescription(Get.context!, product);
+          return;
         }
       }
     }
