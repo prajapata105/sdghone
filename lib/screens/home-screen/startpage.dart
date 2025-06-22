@@ -80,7 +80,6 @@ class _FirstPageState extends State<FirstPage> {
         elevation: 0,
         title: InkWell(
           onTap: () {
-            getFcmToken();
           },
           child: Text(
             'श्रीडूँगरगढ़ One',
@@ -92,6 +91,28 @@ class _FirstPageState extends State<FirstPage> {
             ),
           ),
         ),
+        actions: [
+          IconButton(
+            icon: Container(
+              padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 2),
+              decoration: BoxDecoration(
+                border: Border.all(
+                  width: 1.5,
+                  color: kblue,
+                ),
+                borderRadius: BorderRadius.circular(50),
+              ),
+              child: Icon(
+                Icons.person,
+                color: Theme.of(context).iconTheme.color,
+              ),
+            ),
+            onPressed: () {
+              Navigator.of(context).pushNamed('/profile');
+            },
+          ),
+        ],
+
       ),
       body: isLoading
           ? Center(child: CircularProgressIndicator())

@@ -1,47 +1,73 @@
 import 'dart:convert';
 import 'package:ssda/Infrastructure/HttpMethods/requesting_methods.dart';
+import 'package:ssda/Services/WooUserMapper.dart';
 import 'package:ssda/models/category_model.dart';
 
 class CategoryService {
-  final String baseUrl = "https://sridungargarhone.com";
-  final String consumerKey = "ck_d7ef1f4a099e201fefb6b4cf5abe3108b1ead425";
-  final String consumerSecret = "cs_8bcc847ea3e7159f501c242d2c047002ed9d06c5";
+  // <<<--- बदलाव यहाँ: इन वेरिएबल्स को static बनाया गया ---<<<
+  static const String _baseUrl = WooUserMapper.baseUrl + "/wp-json/wc/v3/";
+  static const String _consumerKey = WooUserMapper.consumerKey;
+  static const String _consumerSecret = WooUserMapper.consumerSecret;
 
-  Future<List<Category>> getAllCategories() async {
+  // <<<--- बदलाव यहाँ: इस मेथड को static बनाया गया ---<<<
+  static Future<List<Category>> getAllCategories() async {
     final url =
-        "$baseUrl/wp-json/wc/v3/products/categories?consumer_key=$consumerKey&consumer_secret=$consumerSecret";
+        "${_baseUrl}products/categories?per_page=100&consumer_key=$_consumerKey&consumer_secret=$_consumerSecret";
 
-    final response = await ApiService.requestMethods(
-      methodType: "GET",
-      url: url,
-    );
-
-    return (response as List).map((e) => Category.fromJson(e)).toList();
+    try {
+      final response = await ApiService.requestMethods(
+        methodType: "GET",
+        url: url,
+      );
+      if (response != null && response is List) {
+        return response.map((e) => Category.fromJson(e)).toList();
+      }
+      return [];
+    } catch (e) {
+      print("Error fetching all categories: $e");
+      return [];
+    }
   }
 
-  Future<List<Category>> getMainCategories() async {
+  // <<<--- बदलाव यहाँ: इस मेथड को static बनाया गया ---<<<
+  static Future<List<Category>> getMainCategories() async {
     final url =
-        "$baseUrl/wp-json/wc/v3/products/categories?parent=0&consumer_key=$consumerKey&consumer_secret=$consumerSecret";
+        "${_baseUrl}products/categories?parent=0&per_page=100&consumer_key=$_consumerKey&consumer_secret=$_consumerSecret";
 
-    final response = await ApiService.requestMethods(
-      methodType: "GET",
-      url: url,
-    );
-
-    return (response as List).map((e) => Category.fromJson(e)).toList();
+    try {
+      final response = await ApiService.requestMethods(
+        methodType: "GET",
+        url: url,
+      );
+      if (response != null && response is List) {
+        return response.map((e) => Category.fromJson(e)).toList();
+      }
+      return [];
+    } catch (e) {
+      print("Error fetching main categories: $e");
+      return [];
+    }
   }
 
 
-  Future<List<Category>> getSubCategories(int parentId) async {
+  // <<<--- बदलाव यहाँ: इस मेथड को static बनाया गया ---<<<
+  static Future<List<Category>> getSubCategories(int parentId) async {
     final url =
-        "$baseUrl/wp-json/wc/v3/products/categories?parent=$parentId&consumer_key=$consumerKey&consumer_secret=$consumerSecret";
+        "${_baseUrl}products/categories?parent=$parentId&consumer_key=$_consumerKey&consumer_secret=$_consumerSecret";
 
-    final response = await ApiService.requestMethods(
-      methodType: "GET",
-      url: url,
-    );
-
-    return (response as List).map((e) => Category.fromJson(e)).toList();
+    try {
+      final response = await ApiService.requestMethods(
+        methodType: "GET",
+        url: url,
+      );
+      if (response != null && response is List) {
+        return response.map((e) => Category.fromJson(e)).toList();
+      }
+      return [];
+    } catch (e) {
+      print("Error fetching sub categories: $e");
+      return [];
+    }
   }
 
 }

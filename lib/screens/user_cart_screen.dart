@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ssda/constants.dart';
+import 'package:ssda/controller/CheckoutController.dart'; // <<<--- कंट्रोलर इम्पोर्ट करें
 import 'package:ssda/services/cart_service.dart';
 import 'package:ssda/UI/Widgets/Organisms/cart_screen_address_container.dart';
 import 'package:ssda/UI/Widgets/Organisms/cart_screen_payment_container.dart';
@@ -18,36 +19,38 @@ class CartScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cart = Get.find<CartService>();
+    // <<<--- बदलाव यहाँ: कंट्रोलर को स्क्रीन के शुरुआत में ही बनाएं ---<<<
+    final checkoutCtrl = Get.put(CheckoutController());
 
     return Obx(() => Scaffold(
       backgroundColor: AppColors.greyWhiteColor,
       appBar: AppBar(
         leadingWidth: 25,
         automaticallyImplyLeading: true,
-        title: const Text("Checkout"),
+        title: const Text("My Cart"),
+        centerTitle: true,
       ),
       body: Stack(
         children: [
           ListView(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            // <<<--- बदलाव यहाँ: नीचे के हिस्से के लिए जगह छोड़ी गई ---<<<
+            padding: EdgeInsets.fromLTRB(10, 5, 10, Get.height * 0.2),
             children: [
               const CartTimeandTotalItemCard(),
 
-              // ✅ Real Cart Products
+              // कार्ट के प्रोडक्ट्स
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 5),
-                color: Colors.white,
+                decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10)
+                ),
                 child: cart.cartItems.isEmpty
                     ? const Padding(
                   padding: EdgeInsets.all(30),
                   child: Center(
                     child: Text(
                       "Your cart is empty!",
-                      style: TextStyle(
-                        color: Colors.grey,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                      ),
+                      style: TextStyle(color: Colors.grey, fontSize: 18, fontWeight: FontWeight.w600),
                     ),
                   ),
                 )
@@ -64,17 +67,15 @@ class CartScreen extends StatelessWidget {
 
               const ApplyCouponOnCartCard(),
               CartPriceDetailWidget(
-                cartServiceInstance: cart, // CartService का इंस्टेंस पास करें
-                currencySymbol: appCurrencySybmbol, // आपके constants.dart से
+                cartServiceInstance: cart,
+                currencySymbol: appCurrencySybmbol,
               ),
               const OrderGiftCard(),
               const CancellationPolicyCard(),
-
-              const SizedBox(height: 150),
             ],
           ),
 
-          // ✅ Address & Payment Section
+          // एड्रेस और पेमेंट सेक्शन
           const Positioned(
             bottom: 0,
             left: 0,

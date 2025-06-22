@@ -6,6 +6,9 @@ import 'package:ssda/app_colors.dart' show AppColors;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:ssda/Services/Providers/custom_auth_provider.dart' as myAuth;
+import 'package:ssda/services/Providers/custom_auth_provider.dart';
+
+import '../../services/Providers/custom_auth_provider.dart';
 
 class OTPVerificationScreen extends StatefulWidget {
   const OTPVerificationScreen({super.key, this.data});
@@ -39,7 +42,7 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
       UserCredential cred = await FirebaseAuth.instance.signInWithCredential(credential);
 
       // अब alias के साथ:
-      await myAuth.AuthProvider().onOtpVerified(cred);
+      await myAuth.AppAuthProvider().onOtpVerified(cred);
 
       Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
     } catch (e) {

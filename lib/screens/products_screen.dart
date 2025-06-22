@@ -36,7 +36,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
     _loadProductsForCategory(_selectedCategoryId);
 
     if (widget.categoryId != null) {
-      _subCategoryFuture = CategoryService().getSubCategories(widget.categoryId!);
+      _subCategoryFuture = CategoryService.getSubCategories(widget.categoryId!);
     } else {
       _subCategoryFuture = Future.value([]);
     }

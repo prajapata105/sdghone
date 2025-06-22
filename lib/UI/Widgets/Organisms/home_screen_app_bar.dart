@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:ssda/utils/constent.dart';
 
 class HomeScreenAppBar extends StatelessWidget {
   const HomeScreenAppBar({super.key});
@@ -9,6 +11,19 @@ class HomeScreenAppBar extends StatelessWidget {
       backgroundColor: Colors.white,
       automaticallyImplyLeading: false,
       toolbarHeight: kToolbarHeight + 15,
+      title: InkWell(
+        onTap: () {
+        },
+        child: Text(
+          'श्रीडूँगरगढ़ One',
+          style: GoogleFonts.poppins(
+            fontWeight: FontWeight.bold,
+            color: kblue,
+
+            fontSize: 22,
+          ),
+        ),
+      ),
       actions: [
         IconButton(
           icon: Container(
@@ -30,35 +45,7 @@ class HomeScreenAppBar extends StatelessWidget {
           },
         ),
       ],
-      flexibleSpace: _buildAddress(context),
-    );
-  }
 
-  Widget _buildAddress(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 1),
-      child: const Column(
-
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'DELIVERY IN',
-            maxLines: 1,
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-          ),
-          Text(
-            '25 Minutes',
-            maxLines: 1,
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-          ),
-          Text(
-            'HOME- Floor 9, Delhi',
-            maxLines: 1,
-            style: TextStyle(fontWeight: FontWeight.w400, fontSize: 14),
-          ),
-          // Add more Text widgets as needed
-        ],
-      ),
     );
   }
 }

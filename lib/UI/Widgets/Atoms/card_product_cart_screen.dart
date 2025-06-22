@@ -10,98 +10,141 @@ class CartProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cart = Get.find<CartService>();
+    // GetX से थीम और कार्ट सर्विस को एक बार कॉल करें
+    final CartService cart = Get.find<CartService>();
+    final theme = Get.theme;
+
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 0),
-      padding: const EdgeInsets.symmetric(vertical: 10),
-      color: Colors.white,
+      padding: EdgeInsets.symmetric(
+        horizontal: Get.width * 0.02,
+        vertical: Get.height * 0.015,
+      ),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border(
+          bottom: BorderSide(color: Colors.grey.shade200, width: 1),
+        ),
+      ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // LEFT: Product image and details (takes all available width)
+          // <<<--- सेक्शन 1: इमेज ---<<<
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: Image.network(
+              cartItem.imageUrl,
+              height: Get.width * 0.18, // Responsive साइज
+              width: Get.width * 0.18,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) => Container(
+                height: Get.width * 0.18,
+                width: Get.width * 0.18,
+                color: Colors.grey.shade100,
+                child: Icon(Icons.broken_image, size: 40, color: Colors.grey.shade400),
+              ),
+            ),
+          ),
+          SizedBox(width: Get.width * 0.03),
+
+          // <<<--- सेक्शन 2: प्रोडक्ट डिटेल्स (यह बची हुई जगह ले लेगा) ---<<<
           Expanded(
-            child: Row(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Image.network(
-                    cartItem.imageUrl,
-                    height: 70,
-                    width: 70,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) =>
-                    const Icon(Icons.broken_image, size: 48, color: Colors.grey),
-                  ),
+                Text(
+                  cartItem.title,
+                  style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 2,
                 ),
-                const SizedBox(width: 10),
-                // Product details
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        cartItem.title,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                        overflow: TextOverflow.ellipsis, // Important for long text
-                        maxLines: 1,
-                      ),
-                      if (cartItem.variation != null)
-                        Text(
-                          '${cartItem.variation!}',
-                          style: TextStyle(color: Colors.grey[600], fontSize: 13),
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                        ),
-                      Text(
-                        '₹ ${cartItem.price.toStringAsFixed(2)}',
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ],
+                if (cartItem.variation != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4.0),
+                    child: Text(
+                      '${cartItem.variation!}',
+                      style: theme.textTheme.bodySmall?.copyWith(color: Colors.grey.shade600),
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                    ),
                   ),
+                const SizedBox(height: 8),
+                Text(
+                  '₹ ${cartItem.price.toStringAsFixed(2)}',
+                  style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                 ),
               ],
             ),
           ),
-          // RIGHT: Quantity controls (Fixed width)
-          Container(
-            margin: const EdgeInsets.only(left: 10),
-            height: 36,
-            width: 108,
-            decoration: BoxDecoration(
-              color: AppColors.primaryGreenColor,
-              borderRadius: BorderRadius.circular(8.0),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                IconButton(
-                  onPressed: () {
-                    if (cartItem.quantity > 1) {
-                      cart.updateQuantity(cartItem, cartItem.quantity - 1);
-                    } else {
+          SizedBox(width: Get.width * 0.02),
+
+          // <<<--- सेक्शन 3: क्वांटिटी कंट्रोलर (इसका साइज़ फिक्स्ड और responsive है) ---<<<
+          _buildQuantityControls(cart),
+        ],
+      ),
+    );
+  }
+
+  // क्वांटिटी कंट्रोलर बनाने के लिए एक अलग मेथड
+  Widget _buildQuantityControls(CartService cart) {
+    return Container(
+      height: 34,
+      width: Get.width * 0.25, // Responsive चौड़ाई
+      decoration: BoxDecoration(
+          color: AppColors.primaryGreenColor,
+          borderRadius: BorderRadius.circular(8.0),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.primaryGreenColor.withOpacity(0.2),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            )
+          ]
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          // माइनस बटन
+          Expanded(
+            child: IconButton(
+              onPressed: () {
+                if (cartItem.quantity > 1) {
+                  cart.updateQuantity(cartItem, cartItem.quantity - 1);
+                } else {
+                  // कार्ट से हटाने के लिए कन्फर्मेशन दिखाएं (बेहतर UX के लिए)
+                  Get.defaultDialog(
+                    title: "Remove Item",
+                    middleText: "Are you sure you want to remove this item?",
+                    textConfirm: "Remove",
+                    textCancel: "Cancel",
+                    confirmTextColor: Colors.white,
+                    onConfirm: () {
                       cart.removeFromCart(cartItem);
-                    }
-                  },
-                  icon: const Icon(Icons.remove, color: Colors.white, size: 18),
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                  splashRadius: 16,
-                ),
-                Text(
-                  "${cartItem.quantity}",
-                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                ),
-                IconButton(
-                  onPressed: () {
-                    cart.updateQuantity(cartItem, cartItem.quantity + 1);
-                  },
-                  icon: const Icon(Icons.add, color: Colors.white, size: 18),
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                  splashRadius: 16,
-                ),
-              ],
+                      Get.back();
+                    },
+                  );
+                }
+              },
+              icon: Icon(
+                  cartItem.quantity > 1 ? Icons.remove : Icons.delete_outline,
+                  color: Colors.white,
+                  size: 16
+              ),
+              splashRadius: 16,
+            ),
+          ),
+          // क्वांटिटी टेक्स्ट
+          Text(
+            "${cartItem.quantity}",
+            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+          ),
+          // प्लस बटन
+          Expanded(
+            child: IconButton(
+              onPressed: () {
+                cart.updateQuantity(cartItem, cartItem.quantity + 1);
+              },
+              icon: const Icon(Icons.add, color: Colors.white, size: 16),
+              splashRadius: 16,
             ),
           ),
         ],

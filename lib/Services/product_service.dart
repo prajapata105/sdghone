@@ -1,4 +1,4 @@
-// lib/services/product_service.dart
+import 'package:flutter/foundation.dart';
 import 'package:ssda/Infrastructure/HttpMethods/requesting_methods.dart';
 import 'package:ssda/Services/WooUserMapper.dart';
 import 'package:ssda/models/product_model.dart';
@@ -11,15 +11,20 @@ class ProductService {
 
   static Future<List<Product>> getProducts({
     int page = 1,
-    int perPage = 20,
+    int perPage = 10,
     String? categoryId,
+    String? orderBy, // 'popularity' (Best Sellers) या 'date' (New Arrivals) के लिए
   }) async {
-    String categoryQuery = '';
+    String url = '${_baseUrl}products?consumer_key=$_consumerKey&consumer_secret=$_consumerSecret';
+    url += '&page=$page&per_page=$perPage&status=publish';
+
     if (categoryId != null && categoryId.isNotEmpty) {
-      categoryQuery = '&category=$categoryId';
+      url += '&category=$categoryId';
     }
-    final String url =
-        '${_baseUrl}products?consumer_key=$_consumerKey&consumer_secret=$_consumerSecret&page=$page&per_page=$perPage$categoryQuery&status=publish';
+    if (orderBy != null && orderBy.isNotEmpty) {
+      url += '&orderby=$orderBy';
+    }
+
     try {
       final response = await ApiService.requestMethods(url: url, methodType: "GET");
       if (response != null && response is List) {
@@ -27,7 +32,7 @@ class ProductService {
       }
       return [];
     } catch (e) {
-      print("ProductService Error (getProducts): $e");
+      debugPrint("ProductService Error (getProducts): $e");
       return [];
     }
   }
@@ -36,8 +41,7 @@ class ProductService {
     if (query.trim().isEmpty) {
       return [];
     }
-    final String url =
-        '${_baseUrl}products?search=$query&consumer_key=$_consumerKey&consumer_secret=$_consumerSecret&status=publish';
+    final String url = '${_baseUrl}products?search=$query&consumer_key=$_consumerKey&consumer_secret=$_consumerSecret&status=publish';
     try {
       final response = await ApiService.requestMethods(url: url, methodType: "GET");
       if (response != null && response is List) {
@@ -45,8 +49,22 @@ class ProductService {
       }
       return [];
     } catch (e) {
-      print("ProductService Error (searchProducts): $e");
+      debugPrint("ProductService Error (searchProducts): $e");
       return [];
+    }
+  }
+
+  static Future<Product?> getProductById(int productId) async {
+    final String url = '${_baseUrl}products/$productId?consumer_key=$_consumerKey&consumer_secret=$_consumerSecret';
+    try {
+      final response = await ApiService.requestMethods(methodType: "GET", url: url);
+      if (response != null) {
+        return Product.fromJson(response);
+      }
+      return null;
+    } catch (e) {
+      debugPrint("Error fetching product by ID $productId: $e");
+      return null;
     }
   }
 }

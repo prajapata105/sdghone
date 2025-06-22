@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import 'app_colors.dart';
 
@@ -7,7 +8,8 @@ class AppTheme {
   static final ThemeData appTHeme = ThemeData(
     primaryColor: AppColors.primaryYellowColor,
     scaffoldBackgroundColor: AppColors.scaffoldBackgroundColor,
-    fontFamily: 'Catamaran',
+    fontFamily: GoogleFonts.poppins().fontFamily,
+
     textTheme: const TextTheme(
       labelLarge: TextStyle(
         color: Colors.black,

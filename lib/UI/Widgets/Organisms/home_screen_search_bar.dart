@@ -1,6 +1,7 @@
 // lib/UI/Widgets/Organisms/home_screen_search_bar.dart
 import 'package:flutter/material.dart';
-import 'package:ssda/UI/Search/ProductSearchDelegate.dart'; // <<<--- नया सर्च डेलीगेट इम्पोर्ट करें
+import 'package:ssda/UI/Search/ProductSearchDelegate.dart';
+import 'package:ssda/utils/constent.dart'; // <<<--- नया सर्च डेलीगेट इम्पोर्ट करें
 
 class HomeScreenSearchBar extends StatelessWidget {
   const HomeScreenSearchBar({
@@ -29,7 +30,7 @@ class HomeScreenSearchBar extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 12),
           child: Row(
             children: [
-              Icon(Icons.search, color: Colors.grey[600]),
+              Icon(Icons.search, color: kblue),
               const SizedBox(width: 10),
               Text(
                 "Search for products...",

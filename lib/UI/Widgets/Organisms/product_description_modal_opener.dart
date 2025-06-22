@@ -1,20 +1,18 @@
-// lib/UI/Widgets/Organisms/product_description_modal_opener.dart
-
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:ssda/app_colors.dart';
 import 'package:ssda/constants.dart';
+import 'package:ssda/models/cart_item_model.dart';
 import 'package:ssda/models/product_model.dart';
-import 'package:ssda/UI/Widgets/Atoms/add_to_cart_button.dart';
+import 'package:ssda/services/cart_service.dart';
+import 'package:html/parser.dart'; // HTML टैग्स हटाने के लिए
 
 // यह एक हेल्पर फंक्शन है जो बॉटम शीट को खोलता है
 void openProductDescription(BuildContext context, Product product) {
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
-    backgroundColor: Colors.white,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-    ),
+    backgroundColor: Colors.transparent, // शीट को पारदर्शी बनाएं
     builder: (context) => DraggableScrollableSheet(
       expand: false,
       initialChildSize: 0.6, // शुरुआती ऊंचाई 60%
@@ -32,78 +30,181 @@ class ProductDescriptionModal extends StatelessWidget {
 
   const ProductDescriptionModal({super.key, required this.product, required this.scrollController});
 
+  // HTML टैग्स को हटाने के लिए एक छोटा फंक्शन
+  String _parseHtmlString(String htmlString) {
+    final document = parse(htmlString);
+    final String? parsedString = document.body?.text;
+    return parsedString ?? '';
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
+    return Container(
+      // <<<--- बदलाव यहाँ: बेहतर डिज़ाइन के लिए ---<<<
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      child: Column(
+        children: [
+          // ड्रैग हैंडल
+          Container(
+            height: 5,
+            width: 40,
+            margin: const EdgeInsets.symmetric(vertical: 12),
+            decoration: BoxDecoration(
+              color: Colors.grey[300],
+              borderRadius: BorderRadius.circular(5),
+            ),
+          ),
+          // स्क्रॉल होने वाला कंटेंट
+          Expanded(
+            child: ListView(
+              controller: scrollController,
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              children: [
+                // प्रोडक्ट इमेज
+                SizedBox(
+                  height: Get.height * 0.25,
+                  width: double.infinity,
+                  child: product.image.isNotEmpty
+                      ? Image.network(product.image, fit: BoxFit.contain,
+                    errorBuilder: (_, __, ___) => const Icon(Icons.broken_image_outlined, size: 100, color: Colors.grey),
+                  )
+                      : const Icon(Icons.image_not_supported_outlined, size: 100, color: Colors.grey),
+                ),
+                const SizedBox(height: 20),
+                // प्रोडक्ट का नाम
+                Text(product.name, style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
+                const SizedBox(height: 10),
+                // प्रोडक्ट का विवरण
+                if (product.description.isNotEmpty)
+                  Text(
+                    _parseHtmlString(product.description), // HTML टैग्स हटाए गए
+                    style: theme.textTheme.bodyLarge?.copyWith(color: Colors.grey[700], height: 1.5),
+                  ),
+                const SizedBox(height: 100), // नीचे के बटन के लिए जगह
+              ],
+            ),
+          ),
+          // <<<--- बदलाव यहाँ: बॉटम बार जो हमेशा दिखेगा ---<<<
+          _buildBottomBar(theme),
+        ],
+      ),
+    );
+  }
+
+  // कीमत और ऐड टू कार्ट बटन के लिए बॉटम बार
+  Widget _buildBottomBar(ThemeData theme) {
     final double priceAsDouble = double.tryParse(product.price) ?? 0.0;
     final double regularPriceAsDouble = double.tryParse(product.regularPrice) ?? 0.0;
     final bool onSale = product.onSale && regularPriceAsDouble > priceAsDouble;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      child: ListView(
-        controller: scrollController,
+      padding: EdgeInsets.fromLTRB(20, 15, 20, Get.mediaQuery.padding.bottom + 15),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, -5),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // ड्रैग हैंडल
-          Center(
-            child: Container(
-              height: 5,
-              width: 40,
-              margin: const EdgeInsets.only(bottom: 15),
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(5),
-              ),
-            ),
-          ),
-          // प्रोडक्ट इमेज
-          SizedBox(
-            height: 200,
-            width: double.infinity,
-            child: product.image.isNotEmpty
-                ? Image.network(product.image, fit: BoxFit.contain,
-              errorBuilder: (_, __, ___) => const Icon(Icons.broken_image_outlined, size: 100, color: Colors.grey),
-            )
-                : const Icon(Icons.image_not_supported_outlined, size: 100, color: Colors.grey),
-          ),
-          const SizedBox(height: 20),
-          // प्रोडक्ट का नाम
-          Text(product.name, style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
-          const SizedBox(height: 10),
-          // प्रोडक्ट का विवरण
-          if (product.description.isNotEmpty)
-            Text(
-              product.description,
-              style: theme.textTheme.bodyLarge?.copyWith(color: Colors.grey[700]),
-            ),
-          const Divider(height: 30),
-          // कीमत और ऐड टू कार्ट बटन
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+          // कीमत का सेक्शन
+          Flexible(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "$appCurrencySybmbol${priceAsDouble.toStringAsFixed(2)}",
+                  style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold, color: AppColors.primaryGreenColor),
+                ),
+                if (onSale)
                   Text(
-                    "$appCurrencySybmbol${priceAsDouble.toStringAsFixed(2)}",
-                    style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold, color: AppColors.primaryGreenColor),
-                  ),
-                  if (onSale)
-                    Text(
-                      "$appCurrencySybmbol${regularPriceAsDouble.toStringAsFixed(2)}",
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        decoration: TextDecoration.lineThrough,
-                        color: Colors.grey,
-                      ),
+                    "$appCurrencySybmbol${regularPriceAsDouble.toStringAsFixed(2)}",
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      decoration: TextDecoration.lineThrough,
+                      color: Colors.grey,
                     ),
-                ],
-              ),
-              buildAddToCartButton(product),
-            ],
+                  ),
+              ],
+            ),
           ),
-          const SizedBox(height: 20),
+          SizedBox(width: Get.width * 0.04),
+          // <<<--- बदलाव यहाँ: नया कार्ट कंट्रोल विजेट ---<<<
+          _buildCartControls(),
+        ],
+      ),
+    );
+  }
+
+  // यह विजेट ADD और +/- बटन दोनों को मैनेज करेगा
+  Widget _buildCartControls() {
+    final CartService cartService = Get.find();
+    return Obx(() {
+      final cartItem = cartService.cartItems.firstWhereOrNull((item) => item.id == product.id);
+
+      if (cartItem == null) {
+        return _buildAddButton(cartService);
+      } else {
+        return _buildQuantitySelector(cartService, cartItem);
+      }
+    });
+  }
+
+  // ADD बटन
+  Widget _buildAddButton(CartService cartService) {
+    return ElevatedButton.icon(
+      onPressed: () {
+        final newItem = CartItem(
+          id: product.id, title: product.name, imageUrl: product.image,
+          price: double.tryParse(product.price) ?? 0.0, quantity: 1,
+        );
+        cartService.addToCart(newItem);
+      },
+      style: ElevatedButton.styleFrom(
+        backgroundColor: AppColors.primaryGreenColor,
+        foregroundColor: Colors.white,
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+      icon: const Icon(Icons.shopping_cart_outlined, size: 20),
+      label: const Text("ADD TO CART", style: TextStyle(fontWeight: FontWeight.bold)),
+    );
+  }
+
+  // क्वांटिटी (+/-) कंट्रोलर
+  Widget _buildQuantitySelector(CartService cartService, CartItem item) {
+    return Container(
+      height: 48,
+      decoration: BoxDecoration(
+        color: AppColors.primaryGreenColor,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          IconButton(
+              onPressed: () => cartService.updateQuantity(item, item.quantity - 1),
+              icon: const Icon(Icons.remove, color: Colors.white)
+          ),
+          Text(
+              '${item.quantity}',
+              style: Get.theme.textTheme.titleLarge?.copyWith(color: Colors.white, fontWeight: FontWeight.bold)
+          ),
+          IconButton(
+              onPressed: () => cartService.updateQuantity(item, item.quantity + 1),
+              icon: const Icon(Icons.add, color: Colors.white)
+          ),
         ],
       ),
     );

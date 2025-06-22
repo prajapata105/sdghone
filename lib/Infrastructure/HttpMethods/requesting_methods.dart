@@ -14,7 +14,7 @@ class ApiService {
     String? methodType,
     required String url, // URL को अब non-nullable और required कर दिया है
     dynamic body,
-    Map<String, String>? customHeaders, // <<<--- नया पैरामीटर जोड़ा गया
+    Map<String, String>? customHeaders, // <<<--- नया पैरामीटर जोड़ा गयाz
   }) async {
     if (url.isEmpty) throw ApiException(400, "URL is Required");
 

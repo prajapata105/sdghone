@@ -1,55 +1,35 @@
-import 'dart:async';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
+import 'package:ssda/controller/Splesh_controller.dart';
 
-import 'homenav.dart';
-import 'login-mobile-number.dart';
-class SplaseScreen extends StatefulWidget {
-  const SplaseScreen({Key? key}) : super(key: key);
+class SplaseScreen extends StatelessWidget {
+  const SplaseScreen({super.key});
 
-  @override
-  State<SplaseScreen> createState() => _SplaseScreenState();
-}
-
-class _SplaseScreenState extends State<SplaseScreen> {
-  var size,w,h;
-  @override
-  void initState() {
-    super.initState();
-    Timer(Duration(seconds: 2),(){
-      if(FirebaseAuth.instance.currentUser?.uid  !=null){
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => HomeNav(index: 0)));
-      }else{
-        Get.offAll(MobileNumber());
-      }
-    });
-    // if (FirebaseAuth.instance.currentUser?.uid != null) {
-    //   WidgetsBinding.instance.addPersistentFrameCallback((_) {
-    //     Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => HomeNav(index: 0)));
-    //   });
-    // } else{
-    //   Get.offAll(const MobileNumber());
-    //   // Future.delayed(const Duration(seconds: 2), () {
-    //   //   Get.offAll(const MobileNumber());
-    //   // });
-    // }
-  }
   @override
   Widget build(BuildContext context) {
-    size = MediaQuery.of(context).size;
-    h = size.height;
-    w = size.width;
+    // कंट्रोलर को इनिशियलाइज़ करें, यह अपने आप अपना काम शुरू कर देगा
+    Get.put(SplashController());
+    final size = MediaQuery.of(context).size;
+    final h = size.height;
+
     return Scaffold(
-      backgroundColor: Color(0xff161C29),
+      backgroundColor: const Color(0xff161C29),
       body: SafeArea(
-        child: Column(children: [
-          SizedBox(height: h*0.2,),
-          Center(child: Image.asset('assets/imagesvg/logoSdghone.png')),
-          SizedBox(height: h*0.3 ,),
-          Text('श्री डूंगरगढ़ हमारा शहर',style: TextStyle(fontSize:19,color: Colors.white),),
-        ],),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Spacer(),
+            Center(child: Image.asset('assets/imagesvg/logoSdghone.png')),
+            const Spacer(),
+            const Text(
+              'श्री डूंगरगढ़ हमारा शहर',
+              style: TextStyle(fontSize: 19, color: Colors.white),
+            ),
+            const SizedBox(height: 20),
+            const CircularProgressIndicator(color: Colors.white),
+            SizedBox(height: h * 0.05),
+          ],
+        ),
       ),
     );
   }

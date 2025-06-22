@@ -8,6 +8,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:ssda/screens/home-screen/SearchScreen.dart';
 import 'package:ssda/screens/home-screen/startpage.dart';
 import 'package:ssda/screens/home_screen.dart';
+import 'package:ssda/screens/news_list_screen.dart';
 import '../../utils/constent.dart';
 import '../../utils/contactutil.dart';
 
@@ -30,7 +31,7 @@ class _HomeNavState extends State<HomeNav> {
     FirstPage(),
     SearchScreen(),
     HomeScreen(),
-    Text('name'),
+    NewsListScreen()
   ];
 
   @override

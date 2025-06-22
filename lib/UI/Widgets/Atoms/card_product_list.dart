@@ -24,10 +24,12 @@ class ProductCardForList extends StatelessWidget {
       onTap: () => openProductDescription(context, product),
       behavior: HitTestBehavior.opaque,
       child: Container(
+        width: Get.width * 0.42,
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.grey.shade200),
+          border: Border.all(color: Colors.grey.shade200, width: 1),
+
         ),
         clipBehavior: Clip.antiAlias,
         child: Column(
@@ -65,8 +67,9 @@ class ProductCardForList extends StatelessWidget {
         // ADD या +/- बटन (अब यह इमेज के ऊपर और आधा बाहर होगा)
         Positioned(
           // <<<--- बटन को नीचे से बाहर निकालने के लिए नेगेटिव वैल्यू ---<<<
-          bottom: -Get.height * 0.018,
-          right: Get.width * 0.02,
+          bottom: -Get.height * 0.02,
+          right: Get.width * 0.015,
+          left: Get.width * 0.015,
           child: Obx(() {
             final cartItem = cartService.cartItems.firstWhereOrNull((item) => item.id == product.id);
             return cartItem == null ? _buildAddButton() : _buildQuantitySelector(cartItem);
@@ -80,7 +83,7 @@ class ProductCardForList extends StatelessWidget {
   Widget _buildDetailsSection() {
     // डिटेल्स को दिखाने के लिए पर्याप्त जगह
     return Padding(
-      padding: const EdgeInsets.fromLTRB(12, 24, 12, 12), // ऊपर से ज्यादा पैडिंग ताकि बटन से न टकराए
+      padding: EdgeInsets.fromLTRB(10, Get.height * 0.03, 10, 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -90,7 +93,7 @@ class ProductCardForList extends StatelessWidget {
               padding: const EdgeInsets.only(bottom: 4.0),
               child: Text(
                 product.weight!,
-                style: TextStyle(fontSize: Get.width * 0.032, color: Colors.grey.shade600),
+                style: TextStyle(fontSize: Get.width * 0.03, color: Colors.grey.shade600),
               ),
             ),
 
@@ -101,7 +104,7 @@ class ProductCardForList extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
             style: TextStyle(fontSize: Get.width * 0.035, fontWeight: FontWeight.w600, height: 1.3),
           ),
-          SizedBox(height: Get.height * 0.008),
+          SizedBox(height: Get.height * 0.006),
 
           // कीमत, MRP और डिस्काउंट
           Row(
