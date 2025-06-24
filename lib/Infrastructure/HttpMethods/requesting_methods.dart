@@ -1,33 +1,47 @@
-// lib/Infrastructure/HttpMethods/requesting_methods.dart
 import 'package:dio/dio.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:ssda/Services/Exceptions/api_exception.dart';
 
+// आपका मूल BaseOptions, इसमें कोई बदलाव नहीं है
 var kdioBaseOptions = BaseOptions(
-  contentType: Headers.jsonContentType, // baseUrl यहां से हटा दिया है, क्योंकि यह हर सर्विस में अलग हो सकता है
+  contentType: Headers.jsonContentType,
   responseType: ResponseType.json,
 );
 
 class ApiService {
-  static final _dio = Dio(kdioBaseOptions);
+  static final Dio _dio = Dio(kdioBaseOptions);
+  static final GetStorage _box = GetStorage(); // GetStorage का इंस्टेंस
 
   static Future requestMethods({
     String? methodType,
-    required String url, // URL को अब non-nullable और required कर दिया है
+    required String url,
     dynamic body,
-    Map<String, String>? customHeaders, // <<<--- नया पैरामीटर जोड़ा गयाz
+    Map<String, String>? customHeaders,
+    bool isAuthorize = false, // <<<--- हम आपके इस पैरामीटर का सम्मान करेंगे
   }) async {
     if (url.isEmpty) throw ApiException(400, "URL is Required");
 
     try {
       Response response;
 
-      // कस्टम हेडर्स को मौजूदा हेडर्स के साथ मिलाएं (यदि कोई हो)
-      Options options = Options(
-        headers: {"Cache-Control": "no-cache"}, // आपका मौजूदा हेडर
-      );
-      if (customHeaders != null) {
-        options.headers?.addAll(customHeaders); // कस्टम हेडर्स जोड़ें
+      // --- <<< यहाँ महत्वपूर्ण बदलाव किया गया है >>> ---
+      // ऑथेंटिकेशन टोकन को स्वचालित रूप से जोड़ने का लॉजिक
+      final Map<String, dynamic> headers = customHeaders ?? {};
+      headers.putIfAbsent("Cache-Control", () => "no-cache");
+
+      // isAuthorize फ्लैग के आधार पर या सीधे टोकन की जांच करके टोकन जोड़ें
+      final String? token = _box.read('authToken');
+      if (isAuthorize || token != null) {
+        if (token != null && token.isNotEmpty) {
+          headers['Authorization'] = 'Bearer $token';
+          print("✅ [ApiService] Auth token found and added to headers.");
+        } else {
+          print("⚠️ [ApiService] Request needs authorization, but no token was found in storage.");
+        }
       }
+      // ----------------------------------------------------
+
+      Options options = Options(headers: headers);
 
       switch (methodType) {
         case "GET":
@@ -46,11 +60,11 @@ class ApiService {
           throw ApiException(400, "Invalid Method Type");
       }
       return response.data;
+
     } on DioException catch (e) {
-      print("DioException in ApiService:");
+      print("❌ [ApiService] DioException Occurred:");
       print("URL: ${e.requestOptions.uri}");
       print("Type: ${e.type}");
-      print("Message: ${e.message}");
       if (e.response != null) {
         print("Response Status Code: ${e.response!.statusCode}");
         print("Response Data: ${e.response!.data}");
@@ -59,8 +73,7 @@ class ApiService {
           e.response?.statusCode ?? 500, e.message ?? "Dio Error",
           stackTrace: e.stackTrace));
     } catch (e, s) {
-      print("Generic error in ApiService: $e");
-      print("Stack trace: $s");
+      print("❌ [ApiService] Generic error in ApiService: $e");
       throw ApiException(500, e.toString(), stackTrace: s);
     }
   }

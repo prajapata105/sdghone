@@ -1,57 +1,72 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart'; // <<<--- Context के लिए इम्पोर्ट करें
-import 'package:get/get.dart';         // <<<--- GetX के लिए इम्पोर्ट करें
+import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:ssda/Services/notification_service.dart';
+import 'package:ssda/Infrastructure/HttpMethods/requesting_methods.dart';
+import 'package:ssda/services/notification_service.dart';
 import 'package:ssda/services/WooUserMapper.dart';
 
-// फाइल के नाम के अनुसार क्लास का नाम CustomAuthProvider रखना बेस्ट प्रैक्टिस है
 class AppAuthProvider {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final box = GetStorage();
-  bool get isUserLoggedIn => box.read('wooUserId') != null;
-  String? wooUserId;
 
-  /// वर्तमान में लॉग-इन फायरबेस यूजर की जानकारी देता है
+  // isUserLoggedIn अब authToken की जांच करेगा, जो ज़्यादा विश्वसनीय है
+  bool get isUserLoggedIn => box.read('authToken') != null;
   User? get currentUser => _auth.currentUser;
 
-  /// लोकल स्टोरेज से wooUserId देता है
-  String? get wooUserIdFromStorage => box.read('wooUserId');
-
-
-  // --- Methods ---
-
-  /// OTP वेरिफिकेशन के बाद Woo-commerce यूजर बनाता/मैप करता है
-  Future<void> onOtpVerified(UserCredential cred) async {
-    String firebaseUid = cred.user!.uid;
-    String phone = cred.user!.phoneNumber!;
-    wooUserId = await WooUserMapper.mapFirebaseToWooUser(phone: firebaseUid, name: phone);
-    await box.write('wooUserId', wooUserId);
-    await NotificationService().refreshTokenAndSendToServer();
-
-  }
-
-  /// <<<--- यह है अपडेट किया हुआ Logout मेथड ---<<<
-  /// इसका काम सिर्फ लॉगआउट का लॉजिक चलाना है, पेज बदलना नहीं।
-  Future<void> logout() async {
+  /// OTP वेरिफिकेशन के बाद यह फंक्शन कॉल होता है और सब कुछ हैंडल करता है।
+  Future<bool> onOtpVerified(UserCredential cred) async {
     try {
-      // Firebase से साइन आउट करें
-      await _auth.signOut();
+      final firebaseUser = cred.user;
+      if (firebaseUser == null || firebaseUser.phoneNumber == null) {
+        throw Exception("Firebase user or phone number is null.");
+      }
 
-      // लोकल स्टोरेज से यूजर का डेटा साफ़ करें
-      await box.remove('wooUserId');
-      wooUserId = null;
-      print("User logged out and local data cleared.");
+      // 1. वर्डप्रेस से JWT टोकन और यूज़र की जानकारी प्राप्त करें
+      final response = await ApiService.requestMethods(
+        url:
+        "https://sridungargarhone.com/wp-json/jwt-auth/v1/token_firebase?phone=${firebaseUser.phoneNumber!}",
+        methodType: "POST",
+      );
+
+      if (response != null && response['token'] != null) {
+        // --- <<< 2. (सबसे महत्वपूर्ण) JWT टोकन को GetStorage में सेव करें >>> ---
+        await box.write('authToken', response['token']);
+        print("✅ [AppAuthProvider] JWT auth token saved successfully.");
+
+        // 3. WooCommerce यूज़र ID को सेव करें
+        // हम उसी response से ID लेंगे जो JWT टोकन के साथ आई है
+        await box.write('wooUserId', response['user_id']);
+        print("✅ [AppAuthProvider] User mapped. wooUserId: ${response['user_id']}");
+
+        // 4. (अब यह काम करेगा) FCM टोकन को अपने वर्डप्रेस सर्वर पर भेजें
+        try {
+          final notificationService = Get.find<NotificationService>();
+          await notificationService.sendTokenToServer();
+        } catch (e) {
+          print("❌ [AppAuthProvider] Error sending FCM token: $e");
+        }
+
+        return true; // लॉगिन सफल हुआ
+      } else {
+        throw Exception("Failed to get JWT token from WordPress.");
+      }
 
     } catch (e) {
-      print("Error during logout: $e");
-      // अगर कोई एरर आए तो उसे दोबारा थ्रो करें ताकि UI उसे हैंडल कर सके
-      throw Exception('Logout Failed: $e');
+      print("❌ [AppAuthProvider] Error during onOtpVerified: $e");
+      return false; // लॉगिन असफल हुआ
     }
   }
 
-  // <<<--- यह मेथड भी जोड़ें ताकि प्रोफाइल स्क्रीन में यूजर की जानकारी मिल सके ---<<<
-  Future<User?> getLoggedInUser() async {
-    return _auth.currentUser;
+  /// यूज़र को लॉग आउट करता है।
+  Future<void> logout() async {
+    try {
+      await _auth.signOut();
+      await box.remove('wooUserId');
+      await box.remove('authToken'); // <<<--- authToken को भी हटाएं
+      print("User logged out and local data cleared.");
+    } catch (e) {
+      print("Error during logout: $e");
+      throw Exception('Logout Failed: $e');
+    }
   }
 }

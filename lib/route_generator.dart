@@ -22,17 +22,11 @@ import 'package:ssda/screens/user_orders_screen.dart';
 
 class AppRouter {
   static Route<dynamic>? generateRoute(RouteSettings settings) {
-    // print("DEBUG: AppRouter को कॉल किया गया, राउट है: ${settings.name}"); // <<<--- यह लाइन जोड़ें
-    // if (settings.name != null && (settings.name!.startsWith('/?p=') || settings.name!.startsWith('/?id='))) {
-    //   final uri = Uri.parse(settings.name!);
-    //   final articleIdString = uri.queryParameters['p'] ?? uri.queryParameters['id'];
-    //   if (articleIdString != null) {
-    //     final articleId = int.tryParse(articleIdString);
-    //     if (articleId != null) {
-    //       return MaterialPageRoute(builder: (_) => DeepLinkHandlerScreen(articleId: articleId));
-    //     }
-    //   }
-    // }
+      if (settings.name != null && settings.name!.contains('?')) {
+        return MaterialPageRoute(
+          builder: (_) => DeepLinkHandlerScreen(path: settings.name!),
+        );
+      }
 
     switch (settings.name) {
       case '/':

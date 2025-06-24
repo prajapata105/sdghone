@@ -1,3 +1,5 @@
+// lib/services/news_service.dart
+
 import 'package:ssda/Infrastructure/HttpMethods/requesting_methods.dart';
 import 'package:ssda/models/news_article_model.dart';
 
@@ -17,7 +19,7 @@ class NewsService {
     return [];
   }
 
-  // <<<--- यह नया फंक्शन जोड़ा गया है ---<<<
+  // +++ यह नया फंक्शन जोड़ा गया है +++
   static Future<NewsArticle?> getArticleById(int id) async {
     final url = "${_baseUrl}posts/$id?_embed";
     try {
