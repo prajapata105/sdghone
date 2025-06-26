@@ -5,14 +5,25 @@ import 'package:ssda/Infrastructure/HttpMethods/requesting_methods.dart';
 import 'package:ssda/services/notification_service.dart';
 import 'package:ssda/services/WooUserMapper.dart';
 
-class AppAuthProvider {
+class AppAuthProvider extends GetxController {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final box = GetStorage();
 
   // isUserLoggedIn अब authToken की जांच करेगा, जो ज़्यादा विश्वसनीय है
+  final Rxn<String> wooUserId = Rxn<String>();
+
   bool get isUserLoggedIn => box.read('authToken') != null;
   User? get currentUser => _auth.currentUser;
 
+  @override
+  void onInit() {
+    super.onInit();
+    // ऐप शुरू होते ही स्टोरेज से यूजर ID लोड करें
+    final storedUserId = box.read<String>('wooUserId');
+    if (storedUserId != null) {
+      wooUserId.value = storedUserId;
+    }
+  }
   /// OTP वेरिफिकेशन के बाद यह फंक्शन कॉल होता है और सब कुछ हैंडल करता है।
   Future<bool> onOtpVerified(UserCredential cred) async {
     try {
@@ -68,5 +79,8 @@ class AppAuthProvider {
       print("Error during logout: $e");
       throw Exception('Logout Failed: $e');
     }
+  }
+  String? getWooUserId() {
+    return wooUserId.value;
   }
 }

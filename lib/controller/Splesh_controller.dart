@@ -16,14 +16,15 @@ class SplashController extends GetxController {
   void onInit() {
     super.onInit();
     _handleStartup();
+
+
   }
 
   Future<void> _handleStartup() async {
     // ऐप शुरू होते ही जांचें कि क्या यह डीप लिंक से खुली है।
     final initialUri = await _appLinks.getInitialLink();
 
-    // अगर initialUri null है, इसका मतलब है कि यह एक सामान्य स्टार्ट है।
-    // तभी टाइमर वाला लॉजिक चलाएं।
+
     if (initialUri == null) {
       // यह एक सामान्य स्टार्ट है।
       Timer(const Duration(seconds: 3), () {
